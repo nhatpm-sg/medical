@@ -1,4 +1,4 @@
-module github.com/dottrip/fpt-swp/backend
+module backend
 
 go 1.21
 

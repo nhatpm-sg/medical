@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/dottrip/fpt-swp/backend/internal/models"
+	"backend/internal/models"
 )
 
 // Dashboard handles the dashboard request
