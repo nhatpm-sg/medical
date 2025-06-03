@@ -3,9 +3,9 @@
 ## Kiến trúc
 
 Dự án có cấu trúc microservice gồm:
-- Frontend: React + TypeScript + Vite, triển khai trên Vercel
-- Backend: Go, triển khai trên VPS
-- Database: PostgreSQL, triển khai trên VPS
+- Frontend: React + TypeScript + Vite, triển khai trên Render
+- Backend: Go, triển khai trên Render
+- Database: PostgreSQL, triển khai trên Render
 
 ## Thiết lập môi trường phát triển
 
@@ -35,36 +35,48 @@ chmod +x run.sh
 
 ## Triển khai production
 
-### Cấu hình Vercel
-1. Tạo tài khoản và dự án mới trên Vercel
-2. Liên kết repository GitHub với dự án Vercel
-3. Cấu hình biến môi trường trong dự án Vercel:
-   - `VITE_API_URL`: URL của backend API (VD: https://api.medical-app.com)
+### Cấu hình Render
+1. Tạo tài khoản và dự án mới trên Render
+2. Liên kết repository GitHub với dự án Render
+3. Cấu hình các service:
 
-### Cấu hình VPS
-1. Cài đặt Docker và Docker Compose trên VPS
-2. Tạo thư mục dự án: `mkdir -p /opt/medical`
-3. Copy file `docker-compose.vps.yml` vào thư mục `/opt/medical` và đổi tên thành `docker-compose.yml`
-4. Tạo file `.env` với các biến môi trường cần thiết
-5. Chạy: `docker-compose up -d`
+#### Frontend Service
+- **Type**: Web Service
+- **Environment**: Node
+- **Build Command**: `cd frontend && npm install && npm run build`
+- **Publish Directory**: `frontend/dist`
+- **Environment Variables**:
+  - `VITE_API_URL`: URL của backend API (VD: https://medical-backend.onrender.com)
+
+#### Backend Service
+- **Type**: Web Service
+- **Environment**: Docker
+- **Dockerfile Path**: `./backend/Dockerfile`
+- **Environment Variables**:
+  - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`: Từ Render PostgreSQL
+  - `JWT_SECRET`: Secret key cho JWT
+  - `TOKEN_HOUR_LIFESPAN`: 24
+  - `ENV`: production
+  - `FRONTEND_URL`: https://medical-frontend.onrender.com
+
+#### Database
+- **Type**: PostgreSQL
+- **Name**: medical-db
+- **Database**: medical_db
+- **User**: postgres
 
 ### Cấu hình GitHub Actions
 1. Thêm các secrets sau vào repository GitHub:
-   - `VERCEL_TOKEN`: Token API từ Vercel
-   - `DOCKER_HUB_USERNAME`: Tên người dùng Docker Hub
-   - `DOCKER_HUB_TOKEN`: Token Docker Hub
-   - `VPS_HOST`: Địa chỉ IP hoặc hostname của VPS
-   - `VPS_USERNAME`: Username để SSH vào VPS
-   - `VPS_SSH_KEY`: Private key SSH để truy cập VPS
+   - `RENDER_API_KEY`: API key từ Render
 
 2. Các workflow GitHub Actions sẽ tự động:
    - Chạy CI: Kiểm tra linting và build
-   - Chạy CD: Deploy frontend lên Vercel và backend lên VPS
+   - Chạy CD: Deploy lên Render
 
 ## Môi trường
 - **Development**: Môi trường phát triển local
-- **Production**: Môi trường triển khai chính thức (Vercel + VPS)
+- **Production**: Môi trường triển khai chính thức (Render)
 
 ## Domain
-- Frontend: https://medical-app.vercel.app
-- Backend API: https://api.medical-app.com 
+- Frontend: https://medical-frontend.onrender.com
+- Backend API: https://medical-backend.onrender.com 

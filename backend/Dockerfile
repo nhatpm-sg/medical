@@ -7,13 +7,13 @@ WORKDIR /app
 RUN apk add --no-cache git
 
 # Copy go.mod and go.sum
-COPY go.mod go.sum ./
+COPY backend/go.mod backend/go.sum ./
 
 # Download dependencies
 RUN go mod download
 
 # Copy source code
-COPY . .
+COPY backend/. .
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/api/main.go

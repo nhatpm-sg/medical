@@ -1,0 +1,53 @@
+services:
+  - type: web
+    name: medical-frontend
+    env: node
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://medical-backend.onrender.com
+
+  - type: web
+    name: medical-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: medical-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: medical-db
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: medical-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: medical-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: medical-db
+          property: database
+      - key: JWT_SECRET
+        sync: false
+      - key: TOKEN_HOUR_LIFESPAN
+        value: 24
+      - key: ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://medical-frontend.onrender.com
+
+databases:
+  - name: medical-db
+    databaseName: medical_db
+    user: postgres
+    plan: free 
