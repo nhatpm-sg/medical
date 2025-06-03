@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/medical/backend/pkg/utils"
+	"github.com/dottrip/fpt-swp/backend/pkg/utils"
 )
 
 // JWTAuthMiddleware is a middleware for JWT authentication

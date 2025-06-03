@@ -1,4 +1,4 @@
-module github.com/medical/backend
+module github.com/dottrip/fpt-swp/backend
 
 go 1.21
 

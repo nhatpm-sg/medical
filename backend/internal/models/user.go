@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/medical/backend/internal/database"
+	"github.com/dottrip/fpt-swp/backend/internal/database"
 	"golang.org/x/crypto/bcrypt"
 )
 
