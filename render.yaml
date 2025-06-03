@@ -16,7 +16,7 @@ services:
     name: medical-backend
     env: docker
     dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    dockerContext: .
     plan: free
     healthCheckPath: /api/health
     envVars:
