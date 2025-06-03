@@ -3,8 +3,9 @@ FROM golang:1.21-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Copy go.mod and go.sum (if exists)
-COPY go.mod go.sum* ./
+# Copy go.mod and go.sum
+COPY go.mod ./
+COPY go.sum ./
 
 # Install build dependencies
 RUN apk add --no-cache git
@@ -21,6 +22,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/api/ma
 # Final stage
 FROM alpine:latest
 
+# Install necessary packages
 RUN apk --no-cache add ca-certificates tzdata
 
 WORKDIR /root/
