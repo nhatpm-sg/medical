@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/dottrip/fpt-swp/backend/internal/models"
-	"github.com/dottrip/fpt-swp/backend/pkg/utils"
+	"github.com/dottrip/fpt-swp/internal/models"
+	"github.com/dottrip/fpt-swp/pkg/utils"
 )
 
 // LoginInput represents the login request body

@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/dottrip/fpt-swp/backend/internal/database"
-	"github.com/dottrip/fpt-swp/backend/internal/handlers"
-	"github.com/dottrip/fpt-swp/backend/internal/middleware"
+	"github.com/dottrip/fpt-swp/internal/database"
+	"github.com/dottrip/fpt-swp/internal/handlers"
+	"github.com/dottrip/fpt-swp/internal/middleware"
 )
 
 func main() {

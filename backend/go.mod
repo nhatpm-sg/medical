@@ -1,4 +1,4 @@
-module github.com/dottrip/fpt-swp/backend
+module github.com/dottrip/fpt-swp
 
 go 1.21
 
@@ -35,5 +35,3 @@ require (
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-
