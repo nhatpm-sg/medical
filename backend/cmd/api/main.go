@@ -35,6 +35,9 @@ func main() {
 		c.Next()
 	})
 
+	// Health check endpoint
+	r.GET("/api/health", handlers.HealthCheck)
+
 	// Public routes
 	public := r.Group("/api")
 	{

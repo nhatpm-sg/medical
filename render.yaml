@@ -16,29 +16,28 @@ services:
     name: medical-backend
     env: docker
     dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /api/health
     envVars:
+      - key: PORT
+        value: 8080
+      - key: GIN_MODE
+        value: release
       - key: DB_HOST
-        fromDatabase:
-          name: medical-db
-          property: host
+        sync: false
       - key: DB_PORT
-        fromDatabase:
-          name: medical-db
-          property: port
+        sync: false
       - key: DB_USER
-        fromDatabase:
-          name: medical-db
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: medical-db
-          property: password
+        sync: false
       - key: DB_NAME
-        fromDatabase:
-          name: medical-db
-          property: database
+        sync: false
       - key: JWT_SECRET
         sync: false
+      - key: JWT_EXPIRATION
+        value: 24h
       - key: TOKEN_HOUR_LIFESPAN
         value: 24
       - key: ENV

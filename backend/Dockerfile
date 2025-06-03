@@ -3,8 +3,9 @@ FROM golang:1.21-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Copy go.mod and go.sum
-COPY go.mod go.sum ./
+# Copy go.mod and go.sum (if exists)
+COPY go.mod ./
+COPY go.sum* ./
 
 # Install build dependencies
 RUN apk add --no-cache git
@@ -31,8 +32,6 @@ WORKDIR /root/
 
 # Copy binary from builder stage
 COPY --from=builder /app/main .
-# Copy .env.production to .env if it exists
-COPY --from=builder /app/.env.production ./.env
 
 # Expose port
 EXPOSE 8080
