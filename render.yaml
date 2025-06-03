@@ -11,12 +11,14 @@ services:
     envVars:
       - key: VITE_API_URL
         value: https://medical-backend.onrender.com
+      - key: NODE_ENV
+        value: production
 
   - type: web
     name: medical-backend
-    env: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    env: go
+    buildCommand: cd backend && go mod download && go build -o main ./cmd/api/main.go
+    startCommand: cd backend && ./main
     plan: free
     healthCheckPath: /api/health
     envVars:

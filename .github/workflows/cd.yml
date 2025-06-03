@@ -12,11 +12,8 @@ jobs:
       - uses: actions/checkout@v3
       
       - name: Deploy to Render
-        uses: render-actions/deploy@v1
-        with:
-          api-key: ${{ secrets.RENDER_API_KEY }}
-          service-id: ${{ secrets.RENDER_SERVICE_ID }}
-          environment: production
+        run: |
+          curl -X POST "https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
   
   deploy-frontend-to-vercel:
     runs-on: ubuntu-latest
@@ -37,22 +34,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          go-version: '1.21'
       
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      
-      - name: Build and push backend
-        uses: docker/build-push-action@v4
-        with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/medical-backend:latest
+      - name: Build Go application
+        run: |
+          cd backend
+          go mod download
+          go build -o main ./cmd/api/main.go
       
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v0.1.10
@@ -62,6 +53,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/medical
-            docker-compose pull backend
-            docker-compose up -d --no-deps backend postgres
-            docker system prune -af 
+            git pull
+            cd backend
+            go mod download
+            go build -o main ./cmd/api/main.go
+            systemctl restart medical-backend 

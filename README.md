@@ -12,7 +12,6 @@ Dự án có cấu trúc microservice gồm:
 ### Yêu cầu
 - Node.js 18+
 - Go 1.21+
-- Docker và Docker Compose
 
 ### Chạy ứng dụng trên local
 
@@ -33,6 +32,46 @@ chmod +x run.sh
 ./run.sh
 ```
 
+### Cấu hình biến môi trường
+
+#### Backend
+Tạo file `.env` trong thư mục backend với nội dung sau:
+
+```
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=medical_db
+DB_SSL_MODE=disable
+
+# Server Configuration
+PORT=8080
+GIN_MODE=debug
+
+# JWT Configuration
+JWT_SECRET=your_jwt_secret_key
+TOKEN_HOUR_LIFESPAN=24
+
+# Environment
+ENV=development
+
+# Frontend URL
+FRONTEND_URL=http://localhost:5173
+```
+
+#### Frontend
+Tạo file `.env` trong thư mục frontend với nội dung sau:
+
+```
+# API URL
+VITE_API_URL=http://localhost:8080
+
+# Environment
+NODE_ENV=development
+```
+
 ## Triển khai production
 
 ### Cấu hình Render
@@ -47,12 +86,16 @@ chmod +x run.sh
 - **Publish Directory**: `frontend/dist`
 - **Environment Variables**:
   - `VITE_API_URL`: URL của backend API (VD: https://medical-backend.onrender.com)
+  - `NODE_ENV`: production
 
 #### Backend Service
 - **Type**: Web Service
-- **Environment**: Docker
-- **Dockerfile Path**: `./backend/Dockerfile`
+- **Environment**: Go
+- **Build Command**: `cd backend && go mod download && go build -o main ./cmd/api/main.go`
+- **Start Command**: `cd backend && ./main`
 - **Environment Variables**:
+  - `PORT`: 8080
+  - `GIN_MODE`: release
   - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`: Từ Render PostgreSQL
   - `JWT_SECRET`: Secret key cho JWT
   - `TOKEN_HOUR_LIFESPAN`: 24
@@ -68,6 +111,7 @@ chmod +x run.sh
 ### Cấu hình GitHub Actions
 1. Thêm các secrets sau vào repository GitHub:
    - `RENDER_API_KEY`: API key từ Render
+   - `RENDER_SERVICE_ID`: ID của service trên Render
 
 2. Các workflow GitHub Actions sẽ tự động:
    - Chạy CI: Kiểm tra linting và build
