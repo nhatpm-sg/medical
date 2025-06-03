@@ -1,40 +1,24 @@
 FROM golang:1.21-alpine AS builder
 
-# Set working directory
-WORKDIR /app
+# Tạo đúng đường dẫn module
+WORKDIR /go/src/github.com/dottrip/fpt-swp/backend
 
-# Copy go.mod and go.sum
+# Copy go.mod và go.sum trước để cache dependency
 COPY go.mod ./
 COPY go.sum ./
-
-# Install build dependencies
 RUN apk add --no-cache git
-
-# Download dependencies
 RUN go mod download
 
-# Copy source code
+# Copy toàn bộ source code vào đúng module path
 COPY . .
 
-# Debug: kiểm tra file main.go có tồn tại không
-RUN ls -l ./cmd/api
-
-# Build the application
+# Build ứng dụng
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/api/main.go
 
 # Final stage
 FROM alpine:latest
-
-# Install necessary packages
 RUN apk --no-cache add ca-certificates tzdata
-
 WORKDIR /root/
-
-# Copy binary from builder stage
-COPY --from=builder /app/main .
-
-# Expose port
+COPY --from=builder /go/src/github.com/dottrip/fpt-swp/backend/main .
 EXPOSE 8080
-
-# Command to run
-CMD ["./main"] 
+CMD ["./main"]
