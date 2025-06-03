@@ -4,13 +4,13 @@ FROM golang:1.21-alpine AS builder
 WORKDIR /go/src/github.com/dottrip/fpt-swp/backend
 
 # Copy go.mod và go.sum trước để cache dependency
-COPY backend/go.mod ./
-COPY backend/go.sum ./
+COPY go.mod ./
+COPY go.sum ./
 RUN apk add --no-cache git
 RUN go mod download
 
 # Copy toàn bộ source code vào đúng module path
-COPY backend/ .
+COPY . .
 
 # Build ứng dụng
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/api/main.go
