@@ -4,7 +4,7 @@ FROM golang:1.21-alpine AS builder
 WORKDIR /app
 
 # Copy go.mod and go.sum
-COPY backend/go.mod backend/go.sum ./
+COPY go.mod go.sum ./
 
 # Install build dependencies
 RUN apk add --no-cache git
@@ -14,7 +14,7 @@ RUN go mod download
 RUN go mod tidy
 
 # Copy source code
-COPY backend/. .
+COPY . .
 
 # Chạy tidy lại một lần nữa sau khi copy mã nguồn
 RUN go mod tidy
