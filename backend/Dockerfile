@@ -3,17 +3,21 @@ FROM golang:1.21-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Install build dependencies
-RUN apk add --no-cache git
-
 # Copy go.mod and go.sum
 COPY backend/go.mod backend/go.sum ./
 
+# Install build dependencies
+RUN apk add --no-cache git
+
 # Download dependencies
 RUN go mod download
+RUN go mod tidy
 
 # Copy source code
 COPY backend/. .
+
+# Chạy tidy lại một lần nữa sau khi copy mã nguồn
+RUN go mod tidy
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/api/main.go

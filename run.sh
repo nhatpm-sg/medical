@@ -25,15 +25,15 @@ fi
 if [ ! -f "backend/.env" ]; then
   echo -e "${BLUE}Creating .env file for backend...${NC}"
   cat > backend/.env << EOL
-DB_HOST=localhost
+DB_HOST=dpg-d0v6717diees73chort0-a
 DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=postgres
+DB_USER=fpt_swp_db_user
+DB_PASSWORD=WN8b8mfU45VQ6h4F9aXVbn5mxNWlNA0q
 DB_NAME=medical_db
 DB_SSL_MODE=disable
 
 PORT=8080
-JWT_SECRET=your_jwt_secret_key
+JWT_SECRET=Qw8!zP3@rT7
 TOKEN_HOUR_LIFESPAN=24
 EOL
   echo -e "${GREEN}Created .env file for backend${NC}"
