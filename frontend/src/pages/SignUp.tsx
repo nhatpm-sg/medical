@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Heart } from 'lucide-react';
 import { authService } from '@/services/api';
 import { toast } from 'sonner';
+import PasswordField from '@/components/PasswordField';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -32,6 +33,12 @@ const SignUp = () => {
     // Kiểm tra mật khẩu xác nhận
     if (formData.password !== formData.confirmPassword) {
       toast.error('Mật khẩu xác nhận không khớp');
+      return;
+    }
+    
+    // Kiểm tra độ dài mật khẩu
+    if (formData.password.length < 6) {
+      toast.error('Mật khẩu phải có ít nhất 6 ký tự');
       return;
     }
     
@@ -145,14 +152,13 @@ const SignUp = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Mật khẩu
                 </label>
-                <Input
-                  type="password"
-                  name="password"
+                <PasswordField
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Nhập mật khẩu"
-                  required
+                  placeholder="Nhập mật khẩu (ít nhất 6 ký tự)"
+                  name="password"
                   disabled={loading}
+                  showRequirements={true}
                 />
               </div>
 
@@ -160,14 +166,13 @@ const SignUp = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Xác nhận mật khẩu
                 </label>
-                <Input
-                  type="password"
-                  name="confirmPassword"
+                <PasswordField
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="Nhập lại mật khẩu"
-                  required
+                  name="confirmPassword"
                   disabled={loading}
+                  showRequirements={false}
                 />
               </div>
 

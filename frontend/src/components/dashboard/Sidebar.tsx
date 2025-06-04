@@ -10,7 +10,9 @@ import {
   Clock,
   ChartBar,
   Book,
-  Mail
+  Mail,
+  Pill,
+  MessageCircle
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -36,6 +38,8 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
       { icon: Users, label: 'Bệnh nhân', path: '/dashboard/doctor/patients' },
       { icon: Calendar, label: 'Lịch khám', path: '/dashboard/doctor/schedule' },
       { icon: FileText, label: 'Hồ sơ y tế', path: '/dashboard/doctor/records' },
+      { icon: Pill, label: 'Quản lý đơn thuốc', path: '/dashboard/doctor/prescriptions' },
+      { icon: MessageCircle, label: 'Tư vấn trực tuyến', path: '/dashboard/doctor/consultation' },
       { icon: Bell, label: 'Thông báo', path: '/dashboard/doctor/notifications' },
       { icon: User, label: 'Hồ sơ cá nhân', path: '/dashboard/doctor/profile' },
     ],

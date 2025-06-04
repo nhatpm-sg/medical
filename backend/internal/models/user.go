@@ -2,7 +2,9 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"html"
+	"os"
 	"strings"
 	"time"
 
@@ -53,6 +55,24 @@ func (u *User) Validate() error {
 	return nil
 }
 
+// getPlaceholder returns the correct placeholder for the database type
+func getPlaceholder(index int) string {
+	dbType := getEnv("DB_TYPE", "postgres")
+	if dbType == "sqlite" {
+		return "?"
+	}
+	return fmt.Sprintf("$%d", index)
+}
+
+// getEnv gets an environment variable or returns a default value
+func getEnv(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
+}
+
 // Create creates a new user in the database
 func (u *User) Create() error {
 	if err := u.Validate(); err != nil {
@@ -62,18 +82,48 @@ func (u *User) Create() error {
 		return err
 	}
 
-	query := `
-		INSERT INTO users (username, email, password)
-		VALUES ($1, $2, $3)
-		RETURNING id, created_at, updated_at
-	`
+	dbType := getEnv("DB_TYPE", "postgres")
 
-	err := database.DB.QueryRow(
-		query, u.Username, u.Email, u.Password,
-	).Scan(&u.ID, &u.CreatedAt, &u.UpdatedAt)
+	if dbType == "sqlite" {
+		// SQLite doesn't support RETURNING, so we use a different approach
+		query := `
+			INSERT INTO users (username, email, password, created_at, updated_at)
+			VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+		`
 
-	if err != nil {
-		return err
+		result, err := database.DB.Exec(query, u.Username, u.Email, u.Password)
+		if err != nil {
+			return err
+		}
+
+		// Get the last inserted ID
+		id, err := result.LastInsertId()
+		if err != nil {
+			return err
+		}
+		u.ID = int(id)
+
+		// Get the created timestamps
+		selectQuery := `SELECT created_at, updated_at FROM users WHERE id = ?`
+		err = database.DB.QueryRow(selectQuery, u.ID).Scan(&u.CreatedAt, &u.UpdatedAt)
+		if err != nil {
+			return err
+		}
+	} else {
+		// PostgreSQL with RETURNING
+		query := `
+			INSERT INTO users (username, email, password)
+			VALUES ($1, $2, $3)
+			RETURNING id, created_at, updated_at
+		`
+
+		err := database.DB.QueryRow(
+			query, u.Username, u.Email, u.Password,
+		).Scan(&u.ID, &u.CreatedAt, &u.UpdatedAt)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -82,12 +132,22 @@ func (u *User) Create() error {
 // GetByEmail retrieves a user by email
 func GetByEmail(email string) (*User, error) {
 	user := &User{}
+	dbType := getEnv("DB_TYPE", "postgres")
 
-	query := `
-		SELECT id, username, email, password, created_at, updated_at
-		FROM users
-		WHERE email = $1
-	`
+	var query string
+	if dbType == "sqlite" {
+		query = `
+			SELECT id, username, email, password, created_at, updated_at
+			FROM users
+			WHERE email = ?
+		`
+	} else {
+		query = `
+			SELECT id, username, email, password, created_at, updated_at
+			FROM users
+			WHERE email = $1
+		`
+	}
 
 	err := database.DB.QueryRow(query, email).Scan(
 		&user.ID, &user.Username, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt,
@@ -103,12 +163,22 @@ func GetByEmail(email string) (*User, error) {
 // GetByID retrieves a user by ID
 func GetByID(id int) (*User, error) {
 	user := &User{}
+	dbType := getEnv("DB_TYPE", "postgres")
 
-	query := `
-		SELECT id, username, email, created_at, updated_at
-		FROM users
-		WHERE id = $1
-	`
+	var query string
+	if dbType == "sqlite" {
+		query = `
+			SELECT id, username, email, created_at, updated_at
+			FROM users
+			WHERE id = ?
+		`
+	} else {
+		query = `
+			SELECT id, username, email, created_at, updated_at
+			FROM users
+			WHERE id = $1
+		`
+	}
 
 	err := database.DB.QueryRow(query, id).Scan(
 		&user.ID, &user.Username, &user.Email, &user.CreatedAt, &user.UpdatedAt,
@@ -124,4 +194,4 @@ func GetByID(id int) (*User, error) {
 // VerifyPassword verifies the password of a user
 func (u *User) VerifyPassword(password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
-} 
+}

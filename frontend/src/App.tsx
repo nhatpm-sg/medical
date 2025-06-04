@@ -16,8 +16,16 @@ import Dashboard from "./pages/dashboard/Index";
 import PatientList from "./pages/dashboard/doctor/PatientList";
 import DoctorSchedule from "./pages/dashboard/doctor/Schedule";
 import MedicalRecords from "./pages/dashboard/doctor/MedicalRecords";
+import PrescriptionManagement from "./pages/dashboard/doctor/PrescriptionManagement";
+import Consultation from "./pages/dashboard/doctor/Consultation";
+import DoctorProfile from "./pages/dashboard/doctor/Profile";
 import BlogManagement from "./pages/dashboard/staff/BlogManagement";
+import StaffMessages from "./pages/dashboard/staff/Messages";
+import StaffSupport from "./pages/dashboard/staff/Support";
+import StaffSchedule from "./pages/dashboard/staff/Schedule";
+import StaffProfile from "./pages/dashboard/staff/Profile";
 import DoctorManagement from "./pages/dashboard/admin/DoctorManagement";
+import StaffManagement from "./pages/dashboard/admin/StaffManagement";
 import PatientAppointments from "./pages/dashboard/patient/Appointments";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -81,6 +89,30 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/dashboard/doctor/prescriptions" 
+            element={
+              <ProtectedRoute>
+                <PrescriptionManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/doctor/consultation" 
+            element={
+              <ProtectedRoute>
+                <Consultation />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/doctor/profile" 
+            element={
+              <ProtectedRoute>
+                <DoctorProfile />
+              </ProtectedRoute>
+            } 
+          />
           
           {/* Staff routes - protected */}
           <Route 
@@ -99,6 +131,38 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/dashboard/staff/messages" 
+            element={
+              <ProtectedRoute>
+                <StaffMessages />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/staff/support" 
+            element={
+              <ProtectedRoute>
+                <StaffSupport />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/staff/schedule" 
+            element={
+              <ProtectedRoute>
+                <StaffSchedule />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/staff/profile" 
+            element={
+              <ProtectedRoute>
+                <StaffProfile />
+              </ProtectedRoute>
+            } 
+          />
           
           {/* Admin routes - protected */}
           <Route 
@@ -114,6 +178,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <DoctorManagement />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard/admin/staff" 
+            element={
+              <ProtectedRoute>
+                <StaffManagement />
               </ProtectedRoute>
             } 
           />

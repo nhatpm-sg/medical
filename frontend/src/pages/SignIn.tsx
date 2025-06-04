@@ -75,11 +75,14 @@ const SignIn = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Nhập mật khẩu"
+                  placeholder="Nhập mật khẩu (ít nhất 6 ký tự)"
                   required
                   disabled={loading}
                   className="w-full"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Mật khẩu phải có ít nhất 6 ký tự
+                </p>
               </div>
 
               <div className="flex items-center justify-between">

@@ -4,11 +4,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/dottrip/fpt-swp/internal/database"
 	"github.com/dottrip/fpt-swp/internal/handlers"
 	"github.com/dottrip/fpt-swp/internal/middleware"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -43,6 +43,11 @@ func main() {
 	{
 		public.POST("/register", handlers.Register)
 		public.POST("/login", handlers.Login)
+
+		// Public blog endpoints
+		public.GET("/blog/posts", handlers.GetPublishedBlogPosts)
+		public.GET("/blog/posts/:id", handlers.GetBlogPost)
+		public.GET("/blog/categories", handlers.GetBlogCategories)
 	}
 
 	// Protected routes
@@ -50,6 +55,31 @@ func main() {
 	protected.Use(middleware.JWTAuthMiddleware())
 	{
 		protected.GET("/dashboard", handlers.Dashboard)
+
+		// Protected blog endpoints (for staff/admin)
+		blogGroup := protected.Group("/blog")
+		{
+			// Admin/Staff blog management
+			blogGroup.GET("/manage/posts", handlers.GetBlogPosts)
+			blogGroup.POST("/manage/posts", handlers.CreateBlogPost)
+			blogGroup.GET("/manage/posts/:id", handlers.GetBlogPost)
+			blogGroup.PUT("/manage/posts/:id", handlers.UpdateBlogPost)
+			blogGroup.DELETE("/manage/posts/:id", handlers.DeleteBlogPost)
+			blogGroup.POST("/manage/posts/:id/publish", handlers.PublishBlogPost)
+			blogGroup.POST("/manage/posts/:id/unpublish", handlers.UnpublishBlogPost)
+			blogGroup.GET("/manage/stats", handlers.GetBlogStats)
+		}
+
+		// Doctor management endpoints (for admin)
+		doctorGroup := protected.Group("/doctors")
+		{
+			doctorGroup.GET("", handlers.GetDoctors)
+			doctorGroup.POST("", handlers.CreateDoctor)
+			doctorGroup.GET("/specialties", handlers.GetDoctorSpecialties)
+			doctorGroup.GET("/:id", handlers.GetDoctor)
+			doctorGroup.PUT("/:id", handlers.UpdateDoctor)
+			doctorGroup.DELETE("/:id", handlers.DeleteDoctor)
+		}
 	}
 
 	// Get port from environment
@@ -69,4 +99,4 @@ func getEnv(key, defaultValue string) string {
 		return defaultValue
 	}
 	return value
-} 
+}

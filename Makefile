@@ -101,6 +101,11 @@ health: ## Check application health
 	@curl -f http://localhost:5173 || echo "Frontend not running"
 
 # Database commands
+setup-sqlite: ## Setup SQLite database for development
+	@echo "🗄️ Setting up SQLite database for development..."
+	chmod +x setup-sqlite.sh
+	./setup-sqlite.sh
+
 db-reset: ## Reset database (development only)
 	@echo "🗄️ Resetting database..."
 	docker-compose exec postgres psql -U postgres -d medical_db -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
