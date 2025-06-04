@@ -131,6 +131,7 @@ func Register(c *gin.Context) {
 			"id":       user.ID,
 			"username": user.Username,
 			"email":    user.Email,
+			"role":     user.Role,
 		},
 		"token": token,
 	})
@@ -187,6 +188,7 @@ func Login(c *gin.Context) {
 			"id":       user.ID,
 			"username": user.Username,
 			"email":    user.Email,
+			"role":     user.Role,
 		},
 		"token": token,
 	})

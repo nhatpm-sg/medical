@@ -8,6 +8,7 @@ import (
 
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // DB is the database connection
@@ -95,6 +96,7 @@ func createTables() {
 			username VARCHAR(100) UNIQUE NOT NULL,
 			email VARCHAR(100) UNIQUE NOT NULL,
 			password VARCHAR(255) NOT NULL,
+			role VARCHAR(20) DEFAULT 'patient',
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		);`
@@ -105,6 +107,7 @@ func createTables() {
 			username VARCHAR(100) UNIQUE NOT NULL,
 			email VARCHAR(100) UNIQUE NOT NULL,
 			password VARCHAR(255) NOT NULL,
+			role VARCHAR(20) DEFAULT 'patient',
 			created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 		);`
@@ -114,6 +117,20 @@ func createTables() {
 	if err != nil {
 		log.Fatal("Failed to create users table:", err)
 	}
+
+	// Add role column to existing users table if it doesn't exist
+	var addRoleColumn string
+	if dbType == "sqlite" {
+		addRoleColumn = `ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'patient';`
+	} else {
+		addRoleColumn = `ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'patient';`
+	}
+
+	// Try to add the column (it might already exist, so we ignore errors)
+	DB.Exec(addRoleColumn)
+
+	// Create default admin account if it doesn't exist
+	createDefaultAdmin()
 
 	// Create blog_posts table
 	var blogTable string
@@ -267,4 +284,54 @@ func getEnv(key, defaultValue string) string {
 		return defaultValue
 	}
 	return value
+}
+
+// createDefaultAdmin creates the default admin account if it doesn't exist
+func createDefaultAdmin() {
+	dbType := getEnv("DB_TYPE", "postgres")
+
+	// Check if admin account already exists
+	var count int
+	var checkQuery string
+	if dbType == "sqlite" {
+		checkQuery = `SELECT COUNT(*) FROM users WHERE email = ?`
+	} else {
+		checkQuery = `SELECT COUNT(*) FROM users WHERE email = $1`
+	}
+
+	err := DB.QueryRow(checkQuery, "admin@admin.com").Scan(&count)
+	if err != nil {
+		log.Printf("Warning: Failed to check for admin account: %v", err)
+		return
+	}
+
+	// If admin account doesn't exist, create it
+	if count == 0 {
+		// Hash the password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("123456"), bcrypt.DefaultCost)
+		if err != nil {
+			log.Printf("Warning: Failed to hash admin password: %v", err)
+			return
+		}
+
+		var insertQuery string
+		if dbType == "sqlite" {
+			insertQuery = `
+				INSERT INTO users (username, email, password, role, created_at, updated_at)
+				VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+			`
+		} else {
+			insertQuery = `
+				INSERT INTO users (username, email, password, role)
+				VALUES ($1, $2, $3, $4)
+			`
+		}
+
+		_, err = DB.Exec(insertQuery, "Admin", "admin@admin.com", string(hashedPassword), "admin")
+		if err != nil {
+			log.Printf("Warning: Failed to create default admin account: %v", err)
+		} else {
+			log.Println("Default admin account created: admin@admin.com / 123456")
+		}
+	}
 }

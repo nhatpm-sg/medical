@@ -18,6 +18,7 @@ type User struct {
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
 	Password  string    `json:"-"`
+	Role      string    `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -78,6 +79,12 @@ func (u *User) Create() error {
 	if err := u.Validate(); err != nil {
 		return err
 	}
+
+	// Set default role if not specified
+	if u.Role == "" {
+		u.Role = "patient"
+	}
+
 	if err := u.BeforeSave(); err != nil {
 		return err
 	}
@@ -87,11 +94,11 @@ func (u *User) Create() error {
 	if dbType == "sqlite" {
 		// SQLite doesn't support RETURNING, so we use a different approach
 		query := `
-			INSERT INTO users (username, email, password, created_at, updated_at)
-			VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+			INSERT INTO users (username, email, password, role, created_at, updated_at)
+			VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 		`
 
-		result, err := database.DB.Exec(query, u.Username, u.Email, u.Password)
+		result, err := database.DB.Exec(query, u.Username, u.Email, u.Password, u.Role)
 		if err != nil {
 			return err
 		}
@@ -112,13 +119,13 @@ func (u *User) Create() error {
 	} else {
 		// PostgreSQL with RETURNING
 		query := `
-			INSERT INTO users (username, email, password)
-			VALUES ($1, $2, $3)
+			INSERT INTO users (username, email, password, role)
+			VALUES ($1, $2, $3, $4)
 			RETURNING id, created_at, updated_at
 		`
 
 		err := database.DB.QueryRow(
-			query, u.Username, u.Email, u.Password,
+			query, u.Username, u.Email, u.Password, u.Role,
 		).Scan(&u.ID, &u.CreatedAt, &u.UpdatedAt)
 
 		if err != nil {
@@ -137,20 +144,20 @@ func GetByEmail(email string) (*User, error) {
 	var query string
 	if dbType == "sqlite" {
 		query = `
-			SELECT id, username, email, password, created_at, updated_at
+			SELECT id, username, email, password, role, created_at, updated_at
 			FROM users
 			WHERE email = ?
 		`
 	} else {
 		query = `
-			SELECT id, username, email, password, created_at, updated_at
+			SELECT id, username, email, password, role, created_at, updated_at
 			FROM users
 			WHERE email = $1
 		`
 	}
 
 	err := database.DB.QueryRow(query, email).Scan(
-		&user.ID, &user.Username, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt,
+		&user.ID, &user.Username, &user.Email, &user.Password, &user.Role, &user.CreatedAt, &user.UpdatedAt,
 	)
 
 	if err != nil {
@@ -168,20 +175,20 @@ func GetByID(id int) (*User, error) {
 	var query string
 	if dbType == "sqlite" {
 		query = `
-			SELECT id, username, email, created_at, updated_at
+			SELECT id, username, email, role, created_at, updated_at
 			FROM users
 			WHERE id = ?
 		`
 	} else {
 		query = `
-			SELECT id, username, email, created_at, updated_at
+			SELECT id, username, email, role, created_at, updated_at
 			FROM users
 			WHERE id = $1
 		`
 	}
 
 	err := database.DB.QueryRow(query, id).Scan(
-		&user.ID, &user.Username, &user.Email, &user.CreatedAt, &user.UpdatedAt,
+		&user.ID, &user.Username, &user.Email, &user.Role, &user.CreatedAt, &user.UpdatedAt,
 	)
 
 	if err != nil {

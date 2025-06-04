@@ -14,9 +14,6 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fixed role - all users are patients
-  const userRole: 'admin' | 'doctor' | 'staff' | 'patient' = 'patient';
-
   useEffect(() => {
     // Kiểm tra người dùng đã đăng nhập chưa
     const currentUser = authService.getCurrentUser();
@@ -37,8 +34,22 @@ const Dashboard = () => {
   };
 
   const renderDashboard = () => {
-    // Since userRole is always 'patient', we can directly return PatientDashboard
-    return <PatientDashboard user={user} />;
+    if (!user || !user.role) {
+      return <PatientDashboard user={user} />;
+    }
+
+    switch (user.role) {
+      case 'admin':
+        return <AdminDashboard />;
+      case 'doctor':
+        return <DoctorDashboard />;
+      case 'staff':
+        return <StaffDashboard />;
+      case 'patient':
+        return <PatientDashboard user={user} />;
+      default:
+        return <PatientDashboard user={user} />;
+    }
   };
 
   if (loading) {
@@ -48,6 +59,9 @@ const Dashboard = () => {
       </div>
     );
   }
+
+  // Get user role, default to 'patient' if not set
+  const userRole = user?.role || 'patient';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -68,6 +82,11 @@ const Dashboard = () => {
                 <div className="bg-white p-4 rounded-lg shadow mb-6">
                   <div className="font-medium">Email: {user?.email}</div>
                   <div className="text-sm text-gray-500">ID người dùng: {user?.id}</div>
+                  <div className="text-sm text-gray-500">Vai trò: {
+                    userRole === 'admin' ? 'Quản trị viên' :
+                    userRole === 'doctor' ? 'Bác sĩ' :
+                    userRole === 'staff' ? 'Nhân viên' : 'Bệnh nhân'
+                  }</div>
                 </div>
               </div>
               {renderDashboard()}

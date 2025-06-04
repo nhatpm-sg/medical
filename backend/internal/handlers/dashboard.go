@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/dottrip/fpt-swp/internal/models"
+	"github.com/gin-gonic/gin"
 )
 
 // Dashboard handles the dashboard request
@@ -30,6 +30,7 @@ func Dashboard(c *gin.Context) {
 			"id":       user.ID,
 			"username": user.Username,
 			"email":    user.Email,
+			"role":     user.Role,
 		},
 	})
-} 
+}
