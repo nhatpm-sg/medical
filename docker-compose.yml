@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: medical_db
+    environment:
+      POSTGRES_DB: medical_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - medical_network
+
+  # Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: medical_backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=medical_db
+      - DB_SSL_MODE=disable
+      - PORT=8080
+      - GIN_MODE=release
+      - JWT_SECRET=your_jwt_secret_key_change_in_production
+      - TOKEN_HOUR_LIFESPAN=24
+      - ENV=development
+      - FRONTEND_URL=http://localhost:3000
+    depends_on:
+      - postgres
+    networks:
+      - medical_network
+
+  # Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: medical_frontend
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    depends_on:
+      - backend
+    networks:
+      - medical_network
+
+volumes:
+  postgres_data:
+
+networks:
+  medical_network:
+    driver: bridge 
