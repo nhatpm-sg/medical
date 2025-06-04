@@ -36,10 +36,10 @@ services:
         sync: false
       - key: DB_NAME
         sync: false
+      - key: DB_SSL_MODE
+        value: require
       - key: JWT_SECRET
         sync: false
-      - key: JWT_EXPIRATION
-        value: 24h
       - key: TOKEN_HOUR_LIFESPAN
         value: 24
       - key: ENV

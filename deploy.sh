@@ -99,10 +99,10 @@ deploy_render() {
         exit 1
     fi
     
-    echo -e "${BLUE}Pushing to main branch...${NC}"
+    echo -e "${BLUE}Pushing to master branch...${NC}"
     git add .
     git commit -m "Deploy: $(date '+%Y-%m-%d %H:%M:%S')" || true
-    git push origin main
+    git push origin master
     
     echo -e "${GREEN}✅ Deployment initiated on Render${NC}"
     echo -e "${YELLOW}Check Render dashboard for deployment status${NC}"
